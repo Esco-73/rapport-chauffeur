@@ -216,56 +216,75 @@ async function shareReport(){
 }
 function newReport(){if(confirm('Commencer une nouvelle journée ?')){localStorage.removeItem('deltaReport');location.reload()}}if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js');load();
 
-
-
 /* ===== LOT 1 - Navigation + Sauvegarde automatique ===== */
 document.addEventListener("DOMContentLoaded", () => {
 
   // Sauvegarde automatique
-  const fields = document.querySelectorAll("input, textarea, select");
-  fields.forEach(f => {
-    const key = "rc_" + (f.id || f.name || "");
-    if (!key.endsWith("_")) {
-      const saved = localStorage.getItem(key);
-      if (saved !== null) f.value = saved;
-      f.addEventListener("input", () => {
-        localStorage.setItem(key, f.value);
+  document.querySelectorAll("input, textarea, select").forEach(field => {
+
+    const key = "rc_" + (field.id || field.name);
+
+    if (!field.id && !field.name) return;
+
+    const saved = localStorage.getItem(key);
+    if (saved !== null) field.value = saved;
+
+    ["input","change"].forEach(evt=>{
+      field.addEventListener(evt,()=>{
+        localStorage.setItem(key,field.value);
       });
-      f.addEventListener("change", () => {
-        localStorage.setItem(key, f.value);
-      });
-    }
+    });
+
   });
 
-  // Entrée = champ suivant en sautant "Fin de journée"
-  document.addEventListener("keydown", e => {
-    if (e.key !== "Enter") return;
+  // Navigation avec Entrée
+  document.addEventListener("keydown", function(e){
 
-    const active = document.activeElement;
-    if (!["INPUT","TEXTAREA","SELECT"].includes(active.tagName)) return;
+    if(e.key!=="Enter") return;
+
+    const active=document.activeElement;
+
+    if(!active.matches("input,textarea,select")) return;
 
     e.preventDefault();
 
-    const list = [...document.querySelectorAll("input, textarea, select")]
-      .filter(el => !el.disabled && el.offsetParent !== null);
+    const champs=[...document.querySelectorAll("input,textarea,select")]
+      .filter(el=>!el.disabled && el.type!=="hidden");
 
-    let i = list.indexOf(active);
-    while (++i < list.length) {
-      const el = list[i];
-      const label = (
-        (el.labels && el.labels[0] ? el.labels[0].textContent : "") +
-        " " + (el.name || "") + " " + (el.id || "")
+    let index=champs.indexOf(active);
+
+    while(index<champs.length-1){
+
+      index++;
+
+      const suivant=champs[index];
+
+      const texte=(
+        (suivant.id||"")+" "+
+        (suivant.name||"")+" "+
+        (suivant.placeholder||"")+" "+
+        (suivant.labels?.[0]?.textContent||"")
       ).toLowerCase();
 
-      if (label.includes("fin de journée") || label.includes("fin_de_journee")) {
+      if(
+        texte.includes("fin de journée") ||
+        texte.includes("fin de journee") ||
+        texte.includes("fin_de_journee") ||
+        texte.includes("findejournee")
+      ){
         continue;
       }
-      el.focus();
-      if (el.select) el.select();
+
+      suivant.focus();
+
+      if(suivant.select) suivant.select();
+
       break;
     }
+
   });
 
 });
 /* ===== FIN LOT 1 ===== */
+
 
