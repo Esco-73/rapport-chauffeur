@@ -233,54 +233,48 @@ document.addEventListener("DOMContentLoaded", () => {
       field.addEventListener(evt,()=>{
         localStorage.setItem(key,field.value);
       });
-    });
-
-  });
-
-  // Navigation avec Entrée
+    }  // Navigation avec Entrée
   document.addEventListener("keydown", function(e){
 
-    if(e.key!=="Enter") return;
+    if(e.key !== "Enter") return;
 
-    const active=document.activeElement;
+    const active = document.activeElement;
 
-    if(!active.matches("input,textarea,select")) return;
+    if(!active.matches("input, textarea, select")) return;
 
     e.preventDefault();
 
-    const champs=[...document.querySelectorAll("input,textarea,select")]
-      .filter(el=>!el.disabled && el.type!=="hidden");
+    const champs = [...document.querySelectorAll("input, textarea, select")]
+      .filter(el => !el.disabled && el.type !== "hidden");
 
-    let index=champs.indexOf(active);
+    let index = champs.indexOf(active);
 
-    while(index<champs.length-1){
+    while(index < champs.length - 1){
 
       index++;
 
-      const suivant=champs[index];
+      const suivant = champs[index];
 
-      const texte=(
-        (suivant.id||"")+" "+
-        (suivant.name||"")+" "+
-        (suivant.placeholder||"")+" "+
-        (suivant.labels?.[0]?.textContent||"")
-      ).toLowerCase();
-
+      // On saute UNIQUEMENT la case Fin de journée
       if(
-        texte.includes("fin de journée") ||
-        texte.includes("fin de journee") ||
-        texte.includes("fin_de_journee") ||
-        texte.includes("findejournee")
+        suivant.id === "finJournee" ||
+        suivant.name === "finJournee" ||
+        suivant.id === "fin_de_journee" ||
+        suivant.name === "fin_de_journee"
       ){
         continue;
       }
 
       suivant.focus();
 
-      if(suivant.select) suivant.select();
+      if(typeof suivant.select === "function"){
+        suivant.select();
+      }
 
       break;
     }
+
+  });
 
   });
 
