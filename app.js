@@ -16,7 +16,28 @@ function tpl(t={},i=0){return `<tr class="trip">
 <td style="background:#ffffff!important;;background:#ffffff!important;"><input data-k="departChantier" type="time" value="${E(t.departChantier)}"></td><td style="background:#ffffff!important;;background:#ffffff!important;"><textarea data-k="obs">${E(t.obs)}</textarea></td>
 </tr>`}
 function collect(){return [...document.querySelectorAll('.trip')].map(el=>Object.fromEntries([...el.querySelectorAll('[data-k]')].map(x=>[x.dataset.k,x.value])))}function render(){if(!trips.length)trips=[{}];document.getElementById('trips').innerHTML=trips.map(tpl).join('')}function addTrip(){trips=collect();trips.push({});render()}function removeTrip(i){trips=collect();trips.splice(i,1);render()}
-function sigData(id){return document.getElementById(id).toDataURL()}function save(show){trips=collect();let d=Object.fromEntries(fields.map(f=>[f,document.getElementById(f).value]));d.trips=trips;d.sigDriver=sigData('sigDriver');localStorage.setItem(getReportKey(),JSON.stringify(d));if(show)alert('Rapport enregistré.')}
+function sigData(id){return document.getElementById(id).toDataURL()}function autoSave(show = false){
+
+  trips = collect();
+
+  let d = Object.fromEntries(
+    fields.map(f => [f, document.getElementById(f).value])
+  );
+
+  d.trips = trips;
+  d.sigDriver = sigData("sigDriver");
+
+  localStorage.setItem("deltaReport", JSON.stringify(d));
+
+  if(show){
+    alert("Rapport enregistré.");
+  }
+
+}
+
+function save(show){
+  autoSave(show);
+}trips=collect();let d=Object.fromEntries(fields.map(f=>[f,document.getElementById(f).value]));d.trips=trips;d.sigDriver=sigData('sigDriver');localStorage.setItem(getReportKey(),JSON.stringify(d));if(show)alert('Rapport enregistré.')}
 function setupCanvas(id){
   const c=document.getElementById(id),ctx=c.getContext('2d');
   function fit(){
